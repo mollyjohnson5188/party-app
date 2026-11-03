@@ -1,0 +1,20 @@
+# SiteGround 全站 301 跳转到 Vercel
+#
+# 使用方式：
+#   1. 把下面的 your-app.vercel.app 替换为你的真实 Vercel 域名
+#   2. 上传到 public_html/.htaccess
+#   3. 若 public_html 里已有 .htaccess，把本文件内容追加到末尾，不要直接覆盖
+#
+# 注意：启用后所有请求（含子路径）都会跳到 Vercel，
+#       原站若有 WordPress 等程序会被完全遮盖。请先备份。
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # 保留原路径跳转（/about 会跳到 Vercel 的 /about）
+  RewriteCond %{HTTP_HOST} !^your-app\.vercel\.app$ [NC]
+  RewriteRule ^(.*)$ https://your-app.vercel.app/$1 [R=301,L]
+</IfModule>
+
+# 若 mod_rewrite 不可用，退化为整站跳转
+FallbackResource /index.html

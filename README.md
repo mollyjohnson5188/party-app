@@ -224,6 +224,10 @@ tests/                    验收测试
 
 ---
 
+## SiteGround 入口页
+
+若你的主站托管在 SiteGround 共享套餐（无法运行 Node），可用 `siteground-entry/` 目录里的引导页或 301 规则做入口。详见该目录 README。
+
 ## 文档
 
 - [`docs/01-schema.sql`](docs/01-schema.sql) — 数据库 DDL

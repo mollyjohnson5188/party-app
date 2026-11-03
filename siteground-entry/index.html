@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>组局 · 白领户外活动</title>
+    <meta
+      name="description"
+      content="保证金制的白领户外组局平台。到场核销全额退还，爽约补偿守约者。"
+    />
+    <link rel="canonical" href="https://your-app.vercel.app/" />
+    <style>
+      :root {
+        --moss-600: #2f6330;
+        --moss-700: #274e28;
+        --ink: #1b1f1b;
+        --muted: #6b7268;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 24px;
+        background: #f7f6f2;
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-align: center;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.035;
+        background-image: radial-gradient(#000 0.5px, transparent 0.5px);
+        background-size: 4px 4px;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        margin-bottom: 22px;
+      }
+      .logo-mark {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: var(--moss-600);
+      }
+      .logo-text {
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 27px;
+        font-weight: 600;
+        line-height: 1.28;
+        letter-spacing: -0.02em;
+        max-width: 15em;
+      }
+      p {
+        margin: 0 0 26px;
+        max-width: 26em;
+        font-size: 13.5px;
+        line-height: 1.75;
+        color: var(--muted);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 22px;
+        border-radius: 10px;
+        background: var(--moss-600);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background 0.15s ease;
+      }
+      .btn:hover {
+        background: var(--moss-700);
+      }
+      .hint {
+        margin-top: 18px;
+        font-size: 11.5px;
+        color: #9a9a90;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .fade {
+          animation: fadeUp 0.4s ease both;
+        }
+        .fade-2 {
+          animation: fadeUp 0.4s ease 0.08s both;
+        }
+        .fade-3 {
+          animation: fadeUp 0.4s ease 0.16s both;
+        }
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(7px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      }
+    </style>
+    <!-- 如需自动跳转，取消下面这行注释，并把 URL 换成你的 Vercel 域名 -->
+    <!-- <meta http-equiv="refresh" content="2; url=https://your-app.vercel.app/" /> -->
+  </head>
+  <body>
+    <div class="logo fade">
+      <span class="logo-mark">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+          <path d="M3 20h18M6 20V9l6-4 6 4v11" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+      <span class="logo-text">组局</span>
+    </div>
+
+    <h1 class="fade-2">下班之后的<br />第二生活现场</h1>
+
+    <p class="fade-2">
+      保证金只是承诺，不是收入。到场核销，钱原路全额退回；真的没来，
+      这笔钱会分给那些按时到了的人。
+    </p>
+
+    <div class="fade-3">
+      <a class="btn" href="https://your-app.vercel.app/" id="enter">
+        进入组局
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+      <p class="hint">应用由 Vercel 托管，页面将在新地址打开</p>
+    </div>
+
+    <script>
+      // 若你想完全无感跳转，把 REDIRECT 设为 true
+      var REDIRECT = false;
+      var APP_URL = "https://your-app.vercel.app/";
+      document.getElementById("enter").href = APP_URL;
+      document.querySelector('link[rel="canonical"]').href = APP_URL;
+      if (REDIRECT) {
+        location.replace(APP_URL);
+      }
+    </script>
+  </body>
+</html>
