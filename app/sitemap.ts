@@ -8,6 +8,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/`, changeFrequency: 'daily', priority: 1 },
     { url: `${SITE}/blog`, changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE}/circle`, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${SITE}/about`, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${SITE}/rules`, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${SITE}/terms`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${SITE}/privacy`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${SITE}/thanks`, changeFrequency: 'yearly', priority: 0.2 },
   ];
 
   const [posts, acts] = await Promise.all([

@@ -27,10 +27,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <a href="/" className="text-stone-600 hover:text-moss-700">发现组局</a>
               <a href="/circle" className="text-stone-600 hover:text-moss-700">圈子</a>
               <a href="/blog" className="text-stone-600 hover:text-moss-700">户外博客</a>
-              <a href="/blog?category=route" className="text-stone-600 hover:text-moss-700">路线攻略</a>
-              <a href="/blog?category=gear" className="text-stone-600 hover:text-moss-700">装备评测</a>
-              <a href="/blog?category=knowledge" className="text-stone-600 hover:text-moss-700">户外知识</a>
               <a href="/host" className="text-stone-600 hover:text-moss-700">发起组局</a>
+            </nav>
+            <nav className="mb-5 flex flex-wrap gap-x-5 gap-y-2 text-[11.5px] text-stone-400">
+              <a href="/about" className="hover:text-moss-700">关于我们</a>
+              <a href="/rules" className="hover:text-moss-700">社区规则</a>
+              <a href="/terms" className="hover:text-moss-700">用户协议</a>
+              <a href="/privacy" className="hover:text-moss-700">隐私政策</a>
+              <a href="/thanks" className="hover:text-moss-700">致谢</a>
             </nav>
             <div className="border-t border-stone-200/60 pt-5 text-[12px] leading-relaxed text-muted">
             <p>

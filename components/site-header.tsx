@@ -33,11 +33,51 @@ function HeaderShell() {
     <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-[#f7f6f2]/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-5">
         <span className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-moss-600" />
+          <BrandMark size={26} />
           <span className="text-[15px] font-semibold tracking-tight">组局</span>
         </span>
       </div>
     </header>
+  );
+}
+
+/** 品牌 Logo：约 · 圆环（定稿方案 02） */
+export function BrandMark({ size = 26 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 160 160"
+      fill="none"
+      aria-label="组局"
+      className="shrink-0"
+    >
+      <path
+        d="M80 14 A66 66 0 1 1 27 52"
+        stroke="#3F7D3F"
+        strokeWidth="14"
+        strokeLinecap="round"
+      />
+      <path
+        d="M27 52 L46 33 L62 47 L80 14"
+        stroke="#2F5230"
+        strokeWidth="14"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <rect x="44" y="44" width="72" height="72" rx="13" fill="#1F2A1B" />
+      <text
+        x="80"
+        y="97"
+        textAnchor="middle"
+        fontFamily="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"
+        fontSize="50"
+        fontWeight="900"
+        fill="#FFFFFF"
+      >
+        约
+      </text>
+    </svg>
   );
 }
 

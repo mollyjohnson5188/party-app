@@ -1,0 +1,7 @@
+<svg width="320" height="320" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="组局 商标">
+  <title>组局 · 约圆环</title>
+  <path d="M80 14 A66 66 0 1 1 27 52" stroke="#3F7D3F" stroke-width="11" stroke-linecap="round" fill="none"/>
+  <path d="M27 52 L46 33 L62 47 L80 14" stroke="#2F5230" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect x="47" y="47" width="66" height="66" rx="12" fill="#1F2A1B"/>
+  <text x="80" y="95" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="46" font-weight="900" fill="#FFFFFF">约</text>
+</svg>
