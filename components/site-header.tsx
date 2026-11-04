@@ -15,6 +15,7 @@ interface SessionUser {
 const NAV = [
   { href: '/', label: '发现组局' },
   { href: '/circle', label: '圈子' },
+  { href: '/blog', label: '户外博客' },
   { href: '/me', label: '个人中心' },
   { href: '/host', label: '主理人台' },
 ];
@@ -176,9 +177,9 @@ function HeaderInner() {
         </div>
       </div>
 
-      {/* 移动端底部导航 */}
+      {/* 移动端底部导航（精简 4 项，其余见顶部） */}
       <nav className="flex border-t border-stone-200/70 bg-white/70 sm:hidden">
-        {NAV.map((n) => {
+        {NAV.filter((n) => n.href !== '/host').map((n) => {
           const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href);
           return (
             <Link

@@ -22,7 +22,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteHeader />
         <main className="relative z-10 flex-1">{children}</main>
         <footer className="relative z-10 mt-16 border-t border-stone-200/70 py-8">
-          <div className="mx-auto max-w-6xl px-5 text-[12px] leading-relaxed text-muted">
+          <div className="mx-auto max-w-6xl px-5">
+            <nav className="mb-5 flex flex-wrap gap-x-5 gap-y-2 text-[12.5px]">
+              <a href="/" className="text-stone-600 hover:text-moss-700">发现组局</a>
+              <a href="/circle" className="text-stone-600 hover:text-moss-700">圈子</a>
+              <a href="/blog" className="text-stone-600 hover:text-moss-700">户外博客</a>
+              <a href="/blog?category=route" className="text-stone-600 hover:text-moss-700">路线攻略</a>
+              <a href="/blog?category=gear" className="text-stone-600 hover:text-moss-700">装备评测</a>
+              <a href="/blog?category=knowledge" className="text-stone-600 hover:text-moss-700">户外知识</a>
+              <a href="/host" className="text-stone-600 hover:text-moss-700">发起组局</a>
+            </nav>
+            <div className="border-t border-stone-200/60 pt-5 text-[12px] leading-relaxed text-muted">
             <p>
               组局 MVP · 平台不代收活动费用，仅处理保证金。保证金通过持牌支付通道冻结，
               到场核销后原路全额退还。
@@ -30,6 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <p className="mt-1">
               爽约扣划全部用于补偿到场参与者，平台不截留、不收服务费。
             </p>
+            </div>
           </div>
         </footer>
       </body>
