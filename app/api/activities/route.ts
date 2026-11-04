@@ -6,9 +6,11 @@ import { query } from '@/lib/db';
 export async function GET(req: Request) {
   try {
     const userId = req.headers.get('x-user-id');
+    const category = new URL(req.url).searchParams.get('category');
+    const catFilter = category && category !== 'ALL' ? category : null;
     const rows = await query<Record<string, unknown>>(
       `SELECT a.id, a.title, a.location, a.start_at, a.end_at, a.capacity,
-              a.status, a.guarantee_mode, a.guarantee_amount, a.min_credit_score, a.theme,
+              a.status, a.guarantee_mode, a.guarantee_amount, a.min_credit_score, a.theme, a.category,
               u.nickname AS host_name,
               (SELECT count(*) FROM registration r
                 WHERE r.activity_id=a.id
@@ -24,8 +26,9 @@ export async function GET(req: Request) {
          FROM activity a
          JOIN app_user u ON u.id = a.host_id
         WHERE a.status IN ('PUBLISHED','ONGOING','FINISHED')
+          AND ($2::text IS NULL OR a.category = $2)
         ORDER BY a.start_at ASC`,
-      [userId]
+      [userId, catFilter]
     );
 
     return ok(
@@ -42,6 +45,7 @@ export async function GET(req: Request) {
         guaranteeAmount: r.guarantee_amount,
         minCreditScore: r.min_credit_score,
         theme: r.theme,
+        category: r.category,
         hostName: r.host_name,
         myStatus: r.my_status,
       }))
@@ -65,6 +69,7 @@ export async function POST(req: Request) {
       guaranteeAmount?: number;
       minCreditScore?: number;
       theme?: string;
+      category?: string;
       description?: string;
     }>(req);
 
@@ -77,6 +82,18 @@ export async function POST(req: Request) {
       throw new AppError('VALIDATION_ERROR', 400, 'GUARANTEE 模式必须设置保证金金额');
     }
 
+    // 兜底：演示环境的本地身份可能尚未落库，自动补建，避免外键 500
+    await query(
+      `INSERT INTO app_user(id, nickname, phone) VALUES($1,$2,$3)
+       ON CONFLICT (id) DO NOTHING`,
+      [hostId, `用户${hostId.slice(-4)}`, `9${Date.now().toString().slice(-10)}`]
+    );
+    await query(
+      `INSERT INTO credit_account(user_id, score) VALUES($1,100)
+       ON CONFLICT (user_id) DO NOTHING`,
+      [hostId]
+    );
+
     const start = new Date(body.startAt);
     const end = new Date(start.getTime() + (body.durationMin ?? 180) * 60_000);
     const id = `act_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
@@ -84,8 +101,8 @@ export async function POST(req: Request) {
     await query(
       `INSERT INTO activity(
          id, host_id, title, description, location, start_at, end_at,
-         capacity, status, guarantee_mode, guarantee_amount, min_credit_score, theme
-       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'PUBLISHED',$9,$10,$11,$12)`,
+         capacity, status, guarantee_mode, guarantee_amount, min_credit_score, theme, category
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'PUBLISHED',$9,$10,$11,$12,$13)`,
       [
         id,
         hostId,
@@ -99,6 +116,7 @@ export async function POST(req: Request) {
         amount,
         body.minCreditScore ?? 0,
         body.theme ?? 'classic',
+        body.category ?? 'OTHER',
       ]
     );
 

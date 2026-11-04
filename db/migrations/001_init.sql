@@ -458,3 +458,7 @@ CREATE INDEX idx_audit_operator ON audit_log(operator_type, operator_id, created
 -- 增量：活动主题模板（v1.1 视觉模板）
 -- ============================================================
 ALTER TABLE activity ADD COLUMN theme VARCHAR(16) NOT NULL DEFAULT 'classic';
+
+-- 增量：活动分类（列表筛选）
+ALTER TABLE activity ADD COLUMN category VARCHAR(16) NOT NULL DEFAULT 'OTHER';
+CREATE INDEX IF NOT EXISTS idx_activity_category ON activity(category) WHERE status='PUBLISHED';

@@ -6,6 +6,7 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 import { api, apiPost, fmtMoney, fmtTime, relTime, STATUS_LABEL } from '@/lib/client';
 import { Badge, CreditPill, Spinner, Toast } from '@/components/ui';
 import { getTheme } from '@/lib/themes';
+import { getCategory } from '@/lib/categories';
 
 interface RegRow {
   id: string;
@@ -37,6 +38,7 @@ interface Detail {
   registrations?: RegRow[];
   registrationCount: number;
   theme?: string | null;
+  category?: string | null;
 }
 
 export default function ActivityPage() {
@@ -214,7 +216,7 @@ function ActivityContent() {
             className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em]"
             style={{ color: getTheme(d.theme).dark ? '#FFB86B' : getTheme(d.theme).accent }}
           >
-            {getTheme(d.theme).emoji} {getTheme(d.theme).label}
+            {getCategory(d.category).emoji} {getCategory(d.category).label} · {getTheme(d.theme).label}
           </p>
           <h1
             className="text-[26px] font-semibold leading-tight tracking-tight"

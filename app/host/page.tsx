@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, apiPost, fmtMoney, fmtTime, STATUS_LABEL } from '@/lib/client';
 import { Badge, Spinner, Toast } from '@/components/ui';
 import { THEMES, getTheme } from '@/lib/themes';
+import { CATEGORIES } from '@/lib/categories';
 
 interface Act {
   id: string;
@@ -17,6 +18,7 @@ interface Act {
   guaranteeMode: 'NONE' | 'GUARANTEE';
   guaranteeAmount: number;
   theme?: string | null;
+  category?: string | null;
 }
 
 const JOBS = [
@@ -55,6 +57,7 @@ interface FormState {
   minCreditScore: number;
   description: string;
   theme: string;
+  category: string;
 }
 
 /** 默认值不含时间，避免预渲染期读取当前时间；时间在用户点开表单后填充 */
@@ -70,6 +73,7 @@ function emptyForm(): FormState {
     minCreditScore: 80,
     description: '',
     theme: 'classic',
+    category: 'HIKING',
   };
 }
 
@@ -81,6 +85,7 @@ export default function HostPage() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState<Act | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   /** 取消后暂存用于重发的内容 */
   const [resendDraft, setResendDraft] = useState<FormState | null>(null);
 
@@ -97,9 +102,10 @@ export default function HostPage() {
   }
 
   async function publish() {
-    if (!form.title.trim()) return setToast({ msg: '请填写活动标题', tone: 'red' });
-    if (!form.location.trim()) return setToast({ msg: '请填写集合地点', tone: 'red' });
-    if (!form.startAt) return setToast({ msg: '请选择开始时间', tone: 'red' });
+    setFormError(null);
+    if (!form.title.trim()) return setFormError('请填写活动标题');
+    if (!form.location.trim()) return setFormError('请填写集合地点');
+    if (!form.startAt) return setFormError('请选择开始时间');
     setSaving(true);
     try {
       const r = await apiPost<{ id: string }>('/api/activities', {
@@ -113,7 +119,9 @@ export default function HostPage() {
         minCreditScore: Number(form.minCreditScore) || 0,
         description: form.description.trim() || undefined,
         theme: form.theme,
+        category: form.category,
       });
+      setFormError(null);
       setToast({ msg: '发布成功，已上架组局列表', tone: 'moss' });
       setOpen(false);
       setForm(emptyForm());
@@ -121,7 +129,8 @@ export default function HostPage() {
       load();
       return r;
     } catch (e) {
-      setToast({ msg: (e as Error).message, tone: 'red' });
+      setFormError((e as Error).message || '发布失败，请稍后重试');
+      setToast({ msg: (e as Error).message || '发布失败', tone: 'red' });
     } finally {
       setSaving(false);
     }
@@ -159,6 +168,7 @@ export default function HostPage() {
         minCreditScore: 80,
         description: '',
         theme: a.theme ?? 'classic',
+        category: (a as Act & { category?: string }).category ?? 'OTHER',
       };
       setConfirmCancel(null);
       setResendDraft(draft);
@@ -347,6 +357,30 @@ export default function HostPage() {
               )}
             </div>
 
+            {/* 分类 */}
+            <div>
+              <p className="mb-2 text-[12.5px] font-medium">活动类型</p>
+              <div className="flex flex-wrap gap-1.5">
+                {CATEGORIES.map((c) => {
+                  const active = form.category === c.key;
+                  return (
+                    <button
+                      key={c.key}
+                      type="button"
+                      onClick={() => set('category', c.key)}
+                      className={`rounded-full border px-3 py-1.5 text-[12px] transition-colors ${
+                        active
+                          ? 'border-moss-500 bg-moss-500 text-white'
+                          : 'border-stone-200 bg-white text-stone-600 hover:border-moss-300'
+                      }`}
+                    >
+                      {c.emoji} {c.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* 模板选择 */}
             <div>
               <p className="mb-2 text-[12.5px] font-medium">视觉模板</p>
@@ -416,6 +450,11 @@ export default function HostPage() {
               </div>
             </div>
 
+            {formError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12.5px] leading-relaxed text-red-700">
+                {formError}
+              </div>
+            )}
             <div className="flex items-center justify-end gap-2 border-t border-stone-100 pt-4">
               {resendDraft && (
                 <span className="mr-auto text-[11.5px] text-amber-600">
