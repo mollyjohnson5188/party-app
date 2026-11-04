@@ -31,6 +31,7 @@ export default function HomePage() {
   const [cat, setCat] = useState<string>('ALL');
   const [onlySeats, setOnlySeats] = useState(false);
   const [onlyGuarantee, setOnlyGuarantee] = useState(false);
+  const [sort, setSort] = useState<string>('START_ASC');
 
   useEffect(() => {
     api<ActivityItem[]>('/api/activities')
@@ -45,11 +46,42 @@ export default function HomePage() {
     counts[k] = (counts[k] ?? 0) + 1;
   }
 
+  const SORTS = [
+    { key: 'START_ASC', label: '最近开场', hint: '按开始时间由近到远' },
+    { key: 'START_DESC', label: '最晚开场', hint: '按开始时间由远到近' },
+    { key: 'JOINED_DESC', label: '报名最多', hint: '按已报名人数由多到少' },
+    { key: 'JOINED_ASC', label: '报名最少', hint: '按已报名人数由少到多' },
+    { key: 'DEPOSIT_DESC', label: '保证金最高', hint: '按保证金金额由高到低' },
+    { key: 'DEPOSIT_ASC', label: '保证金最低', hint: '按保证金金额由低到高' },
+    { key: 'CREDIT_DESC', label: '信用门槛最高', hint: '按信用分门槛由高到低' },
+    { key: 'REMAIN_ASC', label: '名额最紧', hint: '按剩余名额由少到多' },
+  ];
+
   const filtered = (list ?? []).filter((a) => {
     if (cat !== 'ALL' && (a.category ?? 'OTHER') !== cat) return false;
     if (onlySeats && a.joined >= a.capacity) return false;
     if (onlyGuarantee && a.guaranteeMode !== 'GUARANTEE') return false;
     return true;
+  }).sort((a, b) => {
+    switch (sort) {
+      case 'START_DESC':
+        return new Date(b.startAt).getTime() - new Date(a.startAt).getTime();
+      case 'JOINED_DESC':
+        return b.joined - a.joined || new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+      case 'JOINED_ASC':
+        return a.joined - b.joined || new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+      case 'DEPOSIT_DESC':
+        return b.guaranteeAmount - a.guaranteeAmount || new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+      case 'DEPOSIT_ASC':
+        return a.guaranteeAmount - b.guaranteeAmount || new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+      case 'CREDIT_DESC':
+        return b.minCreditScore - a.minCreditScore || new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+      case 'REMAIN_ASC':
+        return (a.capacity - a.joined) - (b.capacity - b.joined) || new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+      case 'START_ASC':
+      default:
+        return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+    }
   });
 
   return (
@@ -84,10 +116,57 @@ export default function HomePage() {
       </section>
 
       <section className="pb-12">
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-[17px] font-semibold tracking-tight">近期组局</h2>
-          <span className="text-[12px] text-muted">
-            {list ? `${filtered.length} 个活动${cat !== 'ALL' || onlySeats || onlyGuarantee ? '（已筛选）' : ''}` : ''}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-baseline gap-3">
+            <h2 className="text-[17px] font-semibold tracking-tight">近期组局</h2>
+            <span className="text-[12px] text-muted">
+              {list ? `${filtered.length} 个活动${cat !== 'ALL' || onlySeats || onlyGuarantee ? '（已筛选）' : ''}` : ''}
+            </span>
+          </div>
+
+          {/* 排序 */}
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] text-muted">排序</span>
+            <div className="relative">
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="appearance-none rounded-lg border border-stone-200 bg-white py-1.5 pl-3 pr-8 text-[12.5px] text-ink outline-none transition-colors hover:border-moss-300 focus:border-moss-500"
+              >
+                {SORTS.map((o) => (
+                  <option key={o.key} value={o.key}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <svg
+                className="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-stone-400"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+              >
+                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* 排序快捷条 */}
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {SORTS.slice(0, 4).map((o) => (
+            <button
+              key={o.key}
+              onClick={() => setSort(o.key)}
+              title={o.hint}
+              className={`rounded-full border px-2.5 py-1 text-[11.5px] transition-colors ${
+                sort === o.key
+                  ? 'border-moss-500 bg-moss-50 text-moss-700'
+                  : 'border-stone-200 bg-white text-stone-500 hover:border-moss-300'
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+          <span className="ml-1 self-center text-[11px] text-stone-400">
+            {SORTS.find((o) => o.key === sort)?.hint}
           </span>
         </div>
 
