@@ -104,8 +104,91 @@ export default function CirclePage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-5 py-8">
-      <div className="flex items-start justify-between gap-4">
+    <div className="mx-auto max-w-4xl sm:px-5 sm:py-8">
+      {/* ================= 移动端：Reddit 式吸顶搜索条 ================= */}
+      <div className="sticky top-14 z-30 border-b border-stone-200/80 bg-[#f7f6f2]/95 backdrop-blur-md sm:hidden">
+        <div className="flex items-center gap-2 px-3 py-2">
+          <div className="flex h-9 flex-1 items-center gap-2 rounded-full border border-stone-200 bg-white px-3.5">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a8a29e" strokeWidth="2.2">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
+            </svg>
+            <input
+              className="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-stone-400"
+              placeholder="搜索帖子"
+              value={qInput}
+              onChange={(e) => setQInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setQ(qInput.trim());
+              }}
+            />
+            {qInput && (
+              <button
+                aria-label="清除"
+                onClick={() => { setQInput(''); setQ(''); }}
+                className="shrink-0 text-[15px] leading-none text-stone-400"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => setComposing((v) => !v)}
+            aria-label="发帖"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 20h4l10-10a2.8 2.8 0 10-4-4L4 16v4z" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        {/* 版块 pill 横滑 */}
+        <div className="scrollbar-none flex gap-1.5 overflow-x-auto px-3 pb-2">
+          <BoardPill active={board === ''} onClick={() => setBoard('')}>
+            🗂️ 全部
+          </BoardPill>
+          {(boards ?? []).map((b) => (
+            <BoardPill
+              key={b.id}
+              active={board === b.id}
+              onClick={() => setBoard(board === b.id ? '' : b.id)}
+            >
+              {b.emoji} {b.name}
+              {b.postCount > 0 && <span className="ml-1 opacity-55">{b.postCount}</span>}
+            </BoardPill>
+          ))}
+          <span className="w-1 shrink-0" />
+        </div>
+      </div>
+
+      {/* 移动端标题区（紧凑） */}
+      <div className="flex items-center justify-between px-5 pb-1 pt-4 sm:hidden">
+        <div className="flex items-center gap-1.5">
+          {(['latest', 'hot'] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setSort(s)}
+              className={`rounded-full px-3 py-1 text-[12.5px] transition-colors ${
+                sort === s ? 'bg-moss-600 font-medium text-white' : 'bg-stone-200/60 text-stone-600'
+              }`}
+            >
+              {s === 'latest' ? '最新' : '最热'}
+            </button>
+          ))}
+          <button
+            onClick={() => setOnlyFollowed((v) => !v)}
+            className={`rounded-full px-3 py-1 text-[12.5px] transition-colors ${
+              onlyFollowed ? 'bg-moss-500 text-white' : 'bg-stone-200/60 text-stone-600'
+            }`}
+          >
+            关注{follows.length > 0 && ` ${follows.length}`}
+          </button>
+        </div>
+      </div>
+
+      {/* ================= 桌面端头部 ================= */}
+      <div className="hidden items-start justify-between gap-4 sm:flex">
         <div>
           <h1 className="text-[22px] font-semibold tracking-tight">圈子</h1>
           <p className="mt-1.5 text-[13px] text-muted">
@@ -122,7 +205,7 @@ export default function CirclePage() {
 
       {/* 发帖 */}
       {composing && (
-        <div className="card mt-5 p-5">
+        <div className="card mx-5 mt-3 p-5 sm:mx-0 sm:mt-5">
           <div className="mb-3 flex flex-wrap gap-1.5">
             {(boards ?? []).map((b) => (
               <button
@@ -166,8 +249,8 @@ export default function CirclePage() {
         </div>
       )}
 
-      {/* 版块 */}
-      <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      {/* 版块（桌面端网格，移动端已在上方 pill 条） */}
+      <div className="mt-6 hidden grid-cols-2 gap-2 sm:grid sm:grid-cols-3 lg:grid-cols-5">
         <button
           onClick={() => setBoard('')}
           className={`rounded-xl border p-3 text-left transition-all ${
@@ -222,14 +305,14 @@ export default function CirclePage() {
             );
           })}
         {onlyFollowed && follows.length === 0 && (
-          <div className="col-span-2 sm:col-span-3 lg:col-span-5 rounded-xl border border-dashed border-stone-200 p-4 text-center text-[12px] text-muted">
+          <div className="col-span-2 rounded-xl border border-dashed border-stone-200 p-4 text-center text-[12px] text-muted sm:col-span-3 lg:col-span-5">
             还没有关注的版块，点版块右上角「+ 关注」即可
           </div>
         )}
       </div>
 
-      {/* 搜索 + 排序 */}
-      <div className="mt-5 flex flex-wrap items-center gap-2">
+      {/* 搜索 + 排序（桌面端） */}
+      <div className="mt-5 hidden flex-wrap items-center gap-2 sm:flex">
         <div className="flex overflow-hidden rounded-lg border border-stone-200 bg-white">
           {(['latest', 'hot'] as const).map((s) => (
             <button
@@ -280,29 +363,33 @@ export default function CirclePage() {
         </div>
       </div>
 
-      {/* 帖子列表 */}
-      <div className="mt-4">
-        {!posts && <Spinner label="加载圈子" />}
+      {/* 帖子列表：移动端信息流 / 桌面端卡片 */}
+      <div className="mt-3 pb-2 sm:mt-4">
+        {!posts && <div className="py-6"><Spinner label="加载圈子" /></div>}
         {posts && posts.length === 0 && (
-          <div className="card p-10 text-center">
-            <p className="text-[14px] text-muted">这里还很安静，来发第一个帖子吧</p>
-            <button className="btn btn-primary mt-3" onClick={() => setComposing(true)}>
-              发帖
-            </button>
+          <div className="card mx-5 p-10 text-center sm:mx-0">
+            <p className="text-[14px] text-muted">
+              {q ? `没有找到「${q}」相关帖子` : '这里还很安静，来发第一个帖子吧'}
+            </p>
+            {!q && (
+              <button className="btn btn-primary mt-3" onClick={() => setComposing(true)}>
+                发帖
+              </button>
+            )}
           </div>
         )}
-        <div className="space-y-2.5">
+        <div className="divide-y divide-stone-200/70 border-y border-stone-200/70 bg-[#f7f6f2] sm:space-y-2.5 sm:divide-y-0 sm:border-0 sm:bg-transparent">
           {(posts ?? []).map((p) => (
             <Link
               key={p.id}
               href={`/circle/${p.id}`}
-              className="card block p-4 transition-all hover:border-moss-300 hover:shadow-[0_6px_20px_-14px_rgba(31,52,29,0.35)]"
+              className="block px-4 py-3 active:bg-stone-100 sm:card sm:p-4 sm:transition-all sm:hover:border-moss-300 sm:hover:shadow-[0_6px_20px_-14px_rgba(31,52,29,0.35)]"
             >
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 text-[16px]">{p.board.emoji}</span>
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 text-[15px] sm:text-[16px]">{p.board.emoji}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-[14.5px] font-medium leading-snug tracking-tight">
+                    <h3 className="text-[14.5px] font-semibold leading-snug tracking-tight sm:font-medium">
                       {p.isPinned && (
                         <span className="mr-1.5 rounded bg-amber-100 px-1 py-0.5 text-[10px] text-amber-700">
                           置顶
@@ -310,15 +397,20 @@ export default function CirclePage() {
                       )}
                       {p.title}
                     </h3>
-                    <span className="shrink-0 text-[11.5px] text-muted">{relTime(p.createdAt)}</span>
+                    <span className="shrink-0 text-[11px] text-stone-400 sm:text-[11.5px]">
+                      {relTime(p.createdAt)}
+                    </span>
                   </div>
-                  <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-muted">
+                  <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-stone-500 sm:text-muted">
                     {p.excerpt}
                   </p>
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-muted">
-                    <span className="text-stone-500">{p.author.name}</span>
-                    <span className="text-stone-300">·</span>
-                    <span>{p.board.name}</span>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-stone-400 sm:text-muted">
+                    <span className="text-stone-500">u/{p.author.name}</span>
+                    <span className="rounded-full bg-stone-200/60 px-1.5 py-0.5 text-[10.5px] text-stone-600 sm:hidden">
+                      {p.board.name}
+                    </span>
+                    <span className="hidden text-stone-300 sm:inline">·</span>
+                    <span className="hidden sm:inline">{p.board.name}</span>
                     <span className="ml-auto flex items-center gap-3">
                       <span className={p.liked ? 'text-rose-500' : ''}>♥ {p.likeCount}</span>
                       <span>💬 {p.replyCount}</span>
@@ -333,5 +425,22 @@ export default function CirclePage() {
 
       {toast && <Toast message={toast.msg} tone={toast.tone} onClose={() => setToast(null)} />}
     </div>
+  );
+}
+
+function BoardPill({
+  active, onClick, children,
+}: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-[12.5px] transition-colors ${
+        active
+          ? 'border-moss-600 bg-moss-600 text-white'
+          : 'border-stone-200 bg-white text-stone-600'
+      }`}
+    >
+      {children}
+    </button>
   );
 }

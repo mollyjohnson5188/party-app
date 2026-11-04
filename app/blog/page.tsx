@@ -105,9 +105,56 @@ async function BlogList({ searchParams }: { searchParams: Promise<{ category?: s
   const rest = posts.filter((p) => p.id !== featured?.id);
 
   return (
-    <div className="mx-auto max-w-5xl px-5 py-10">
-      {/* 头部 */}
-      <header className="border-b border-stone-200/70 pb-8">
+    <div className="mx-auto max-w-5xl sm:px-5 sm:py-10">
+      {/* ================= 移动端：Reddit 式吸顶分类条 ================= */}
+      <div className="sticky top-14 z-30 border-b border-stone-200/80 bg-[#f7f6f2]/95 backdrop-blur-md sm:hidden">
+        <div className="flex items-center gap-2 px-3 pb-1.5 pt-2">
+          <p className="text-[13px] font-semibold tracking-tight">户外博客</p>
+          <Link href="/host" className="ml-auto text-[11.5px] text-moss-700">
+            去组个局 →
+          </Link>
+        </div>
+        <nav className="scrollbar-none flex gap-1.5 overflow-x-auto px-3 pb-2">
+          <Link
+            href="/blog"
+            className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-[12.5px] ${
+              !cat
+                ? 'border-moss-600 bg-moss-600 text-white'
+                : 'border-stone-200 bg-white text-stone-600'
+            }`}
+          >
+            全部
+          </Link>
+          {cats.map((c) => (
+            <Link
+              key={c.id}
+              href={`/blog?category=${c.slug}`}
+              className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-[12.5px] ${
+                cat === c.slug
+                  ? 'border-moss-600 bg-moss-600 text-white'
+                  : 'border-stone-200 bg-white text-stone-600'
+              }`}
+            >
+              {c.name}
+              <span className="ml-1 opacity-55">{c.post_count}</span>
+            </Link>
+          ))}
+          <span className="w-1 shrink-0" />
+        </nav>
+      </div>
+
+      {/* 移动端标题区 */}
+      <header className="px-5 pb-3 pt-4 sm:hidden">
+        <h1 className="text-[20px] font-semibold leading-tight tracking-tight">
+          走出去之前，先读点真话
+        </h1>
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-stone-500">
+          没有打卡滤镜，只有走过的人告诉你哪段路难、哪双鞋值。
+        </p>
+      </header>
+
+      {/* 头部（桌面端） */}
+      <header className="hidden border-b border-stone-200/70 pb-8 sm:block">
         <p className="text-[11.5px] font-medium uppercase tracking-[0.18em] text-moss-600">
           OUTDOOR JOURNAL
         </p>
@@ -122,8 +169,8 @@ async function BlogList({ searchParams }: { searchParams: Promise<{ category?: s
         </p>
       </header>
 
-      {/* 分类 */}
-      <nav className="mt-6 flex flex-wrap gap-2">
+      {/* 分类（桌面端） */}
+      <nav className="mt-6 hidden flex-wrap gap-2 sm:flex">
         <Link
           href="/blog"
           className={`rounded-full border px-3.5 py-1.5 text-[12.5px] transition-colors ${
@@ -152,7 +199,7 @@ async function BlogList({ searchParams }: { searchParams: Promise<{ category?: s
 
       {/* 空态 */}
       {posts.length === 0 && (
-        <div className="card mt-8 p-12 text-center">
+        <div className="card mx-5 mt-5 p-12 text-center sm:mx-0 sm:mt-8">
           <p className="text-[15px] text-muted">这个分类下还没有文章</p>
           <p className="mt-1.5 text-[12.5px] text-stone-400">我们正在写，先去看看正在招募的组局？</p>
           <Link href="/" className="btn btn-primary mt-4 inline-block">
@@ -161,11 +208,45 @@ async function BlogList({ searchParams }: { searchParams: Promise<{ category?: s
         </div>
       )}
 
-      {/* 头条 */}
+      {/* 头条：移动端信息流首条带缩略图，桌面端大卡 */}
       {featured && (
         <Link
           href={`/blog/${featured.slug}`}
-          className="card group mt-8 block overflow-hidden transition-all hover:border-moss-300 hover:shadow-[0_10px_40px_-24px_rgba(31,52,29,0.5)]"
+          className="mt-2 block border-b border-stone-200/70 bg-[#f7f6f2] px-4 py-3.5 active:bg-stone-100 sm:hidden"
+        >
+          <div className="flex gap-3">
+            <div className="flex min-w-0 flex-1 flex-col">
+              <div className="flex items-center gap-1.5 text-[11px] text-stone-400">
+                <span className="rounded-full bg-moss-600/10 px-1.5 py-0.5 font-medium text-moss-700">
+                  置顶 · {featured.category_name}
+                </span>
+              </div>
+              <h2 className="mt-1.5 text-[15px] font-semibold leading-snug tracking-tight text-ink">
+                {featured.title}
+              </h2>
+              <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-stone-500">
+                {featured.summary}
+              </p>
+              <p className="mt-2 flex items-center gap-2 text-[11px] text-stone-400">
+                <span>{featured.author_name}</span>
+                <span>·</span>
+                <span>{featured.read_count} 阅读</span>
+              </p>
+            </div>
+            <div
+              className="flex h-[70px] w-[70px] shrink-0 items-center justify-center rounded-xl"
+              style={{ background: 'linear-gradient(135deg,#E9F4E8 0%,#CFE7C9 100%)' }}
+            >
+              <span className="text-[28px] leading-none">{featured.cover_emoji}</span>
+            </div>
+          </div>
+        </Link>
+      )}
+
+      {featured && (
+        <Link
+          href={`/blog/${featured.slug}`}
+          className="card group mt-8 hidden overflow-hidden transition-all hover:border-moss-300 hover:shadow-[0_10px_40px_-24px_rgba(31,52,29,0.5)] sm:block"
         >
           <div
             className="flex h-[150px] items-end justify-between px-6 pb-4"
@@ -195,37 +276,61 @@ async function BlogList({ searchParams }: { searchParams: Promise<{ category?: s
         </Link>
       )}
 
-      {/* 列表 */}
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      {/* 列表：移动端信息流单列 / 桌面端两列 */}
+      <div className="divide-y divide-stone-200/70 border-b border-stone-200/70 sm:mt-4 sm:grid sm:gap-3 sm:divide-y-0 sm:border-0 sm:grid-cols-2">
         {rest.map((p) => (
           <Link
             key={p.id}
             href={`/blog/${p.slug}`}
-            className="card group flex flex-col p-5 transition-all hover:-translate-y-0.5 hover:border-moss-300 hover:shadow-[0_6px_24px_-14px_rgba(31,52,29,0.35)]"
+            className="block bg-[#f7f6f2] px-4 py-3.5 active:bg-stone-100 sm:card sm:group sm:flex sm:flex-col sm:p-5 sm:transition-all sm:hover:-translate-y-0.5 sm:hover:border-moss-300 sm:hover:shadow-[0_6px_24px_-14px_rgba(31,52,29,0.35)]"
           >
-            <div className="flex items-start gap-3">
-              <span className="text-[22px] leading-none">{p.cover_emoji}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] text-moss-600">{p.category_name}</p>
-                <h3 className="mt-0.5 text-[15px] font-semibold leading-snug tracking-tight group-hover:text-moss-700">
+            {/* 移动端行 */}
+            <div className="flex gap-3 sm:hidden">
+              <div className="flex min-w-0 flex-1 flex-col">
+                <p className="text-[11px] font-medium text-moss-700">{p.category_name}</p>
+                <h3 className="mt-1 text-[14.5px] font-semibold leading-snug tracking-tight">
                   {p.title}
                 </h3>
+                <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-stone-500">
+                  {p.summary}
+                </p>
+                <p className="mt-2 flex items-center gap-2 text-[11px] text-stone-400">
+                  <span>{fmtDate(p.published_at)}</span>
+                  <span>·</span>
+                  <span>{p.read_count} 阅读</span>
+                </p>
+              </div>
+              <div className="flex h-[70px] w-[70px] shrink-0 items-center justify-center rounded-xl bg-stone-100">
+                <span className="text-[27px] leading-none">{p.cover_emoji}</span>
               </div>
             </div>
-            <p className="mt-2 line-clamp-2 text-[12.5px] leading-relaxed text-muted">
-              {p.summary}
-            </p>
-            <p className="mt-auto flex items-center gap-2 pt-3 text-[11px] text-stone-400">
-              <span>{fmtDate(p.published_at)}</span>
-              <span>·</span>
-              <span>{p.read_count} 阅读</span>
-            </p>
+
+            {/* 桌面端卡片 */}
+            <div className="hidden sm:block">
+              <div className="flex items-start gap-3">
+                <span className="text-[22px] leading-none">{p.cover_emoji}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] text-moss-600">{p.category_name}</p>
+                  <h3 className="mt-0.5 text-[15px] font-semibold leading-snug tracking-tight group-hover:text-moss-700">
+                    {p.title}
+                  </h3>
+                </div>
+              </div>
+              <p className="mt-2 line-clamp-2 text-[12.5px] leading-relaxed text-muted">
+                {p.summary}
+              </p>
+              <p className="mt-3 flex items-center gap-2 text-[11px] text-stone-400">
+                <span>{fmtDate(p.published_at)}</span>
+                <span>·</span>
+                <span>{p.read_count} 阅读</span>
+              </p>
+            </div>
           </Link>
         ))}
       </div>
 
       {/* 转化引导 */}
-      <div className="card mt-10 bg-moss-50/50 p-6 text-center">
+      <div className="card mx-5 mt-6 bg-moss-50/50 p-6 text-center sm:mx-0 sm:mt-10">
         <p className="text-[15px] font-medium">读完了，想真的走一趟？</p>
         <p className="mx-auto mt-1.5 max-w-md text-[12.5px] leading-relaxed text-muted">
           平台上正在招募的组局都由真实用户发起，保证金制——到场全额退还，爽约的钱分给来了的人。

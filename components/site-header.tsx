@@ -217,23 +217,70 @@ function HeaderInner() {
         </div>
       </div>
 
-      {/* 移动端底部导航（精简 4 项，其余见顶部） */}
-      <nav className="flex border-t border-stone-200/70 bg-white/70 sm:hidden">
-        {NAV.filter((n) => n.href !== '/host').map((n) => {
-          const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href);
-          return (
-            <Link
-              key={n.href}
-              href={n.href}
-              className={`flex-1 py-2 text-center text-[11.5px] ${
-                active ? 'font-medium text-moss-700' : 'text-stone-500'
-              }`}
-            >
-              {n.label}
-            </Link>
-          );
-        })}
-      </nav>
     </header>
+  );
+}
+
+/* ---------------- 移动端底部 Tab 栏（Reddit App 范式：5 槽 + 中间发布 FAB） ---------------- */
+
+const TABS: { href: string; label: string; icon: keyof typeof TAB_ICONS }[] = [
+  { href: '/', label: '发现', icon: 'home' },
+  { href: '/circle', label: '圈子', icon: 'circle' },
+  { href: '/blog', label: '博客', icon: 'book' },
+  { href: '/me', label: '我的', icon: 'user' },
+];
+
+const TAB_ICONS = {
+  home: 'M3 10.4 12 3l9 7.4M5.6 9.4V20h12.8V9.4M9.8 20v-5.4h4.4V20',
+  circle:
+    'M12 3.2c2.4 0 4.6.9 6.3 2.4M20.8 12c0 2.4-.9 4.6-2.4 6.3M12 20.8c-2.4 0-4.6-.9-6.3-2.4M3.2 12c0-2.4.9-4.6 2.4-6.3M8.6 8.6h6.8v6.8H8.6z',
+  book: 'M4.5 4.5h6a2.5 2.5 0 0 1 2.5 2.5v13a2 2 0 0 0-2-2H4.5zM19.5 4.5h-6A2.5 2.5 0 0 0 11 7v13a2 2 0 0 1 2-2h6.5z',
+  user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.8 20.2c0-3.4 3.2-5.6 7.2-5.6s7.2 2.2 7.2 5.6',
+  plus: 'M12 5.5v13M5.5 12h13',
+} as const;
+
+export function MobileTabBar() {
+  const pathname = usePathname();
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-stone-200/80 bg-[#f7f6f2]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md sm:hidden">
+      <div className="mx-auto flex h-[54px] max-w-lg items-stretch">
+        {TABS.slice(0, 2).map((t) => (
+          <TabItem key={t.href} tab={t} pathname={pathname} />
+        ))}
+
+        <div className="relative flex w-[68px] shrink-0 justify-center">
+          <Link
+            href="/host"
+            aria-label="发起组局"
+            className="-mt-4 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-moss-600 text-white shadow-lg shadow-moss-600/25 ring-4 ring-[#f7f6f2] active:scale-95 transition-transform"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+              <path d={TAB_ICONS.plus} strokeLinecap="round" />
+            </svg>
+          </Link>
+        </div>
+
+        {TABS.slice(2).map((t) => (
+          <TabItem key={t.href} tab={t} pathname={pathname} />
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+function TabItem({ tab, pathname }: { tab: (typeof TABS)[number]; pathname: string }) {
+  const active = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href);
+  return (
+    <Link
+      href={tab.href}
+      className={`flex flex-1 flex-col items-center justify-center gap-0.5 ${
+        active ? 'text-moss-700' : 'text-stone-500'
+      }`}
+    >
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.1 : 1.75}>
+        <path d={TAB_ICONS[tab.icon]} strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span className={`text-[10.5px] leading-none ${active ? 'font-semibold' : ''}`}>{tab.label}</span>
+    </Link>
   );
 }

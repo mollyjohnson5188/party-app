@@ -200,3 +200,11 @@ body::before {
 .blog-body .bd-link { color: #3e6b3e; text-decoration: underline; text-underline-offset: 2px; }
 .blog-body .bd-link:hover { color: #2f5230; }
 .blog-body strong { font-weight: 600; color: #1f2a1b; }
+
+/* ============ 移动端通用工具（Reddit 式横滑条 / 信息流） ============ */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.scrollbar-none::-webkit-scrollbar { display: none; height: 0; width: 0; }

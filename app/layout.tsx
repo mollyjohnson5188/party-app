@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header";
+import { SiteHeader, MobileTabBar } from "@/components/site-header";
 
 export const metadata: Metadata = {
   title: "组局 · 白领户外活动",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="zh-CN" className="h-full antialiased">
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col pb-[calc(54px+env(safe-area-inset-bottom))] sm:pb-0">
         {/* 隐藏 Netlify 注入的推广角标（iframe #nl-badge-frame） */}
         <style>{`#nl-badge-frame{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}`}</style>
         <script
@@ -47,6 +48,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </div>
           </div>
         </footer>
+        <Suspense fallback={null}>
+          <MobileTabBar />
+        </Suspense>
       </body>
     </html>
   );
