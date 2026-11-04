@@ -7,8 +7,8 @@ import { DEMO_USERS, getCurrentUserId, setCurrentUserId } from '@/lib/client';
 
 const NAV = [
   { href: '/', label: '发现组局' },
-  { href: '/mine', label: '我的报名' },
-  { href: '/credit', label: '信用中心' },
+  { href: '/circle', label: '圈子' },
+  { href: '/me', label: '个人中心' },
   { href: '/host', label: '主理人台' },
 ];
 
