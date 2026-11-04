@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     const userId = req.headers.get('x-user-id');
     const rows = await query<Record<string, unknown>>(
       `SELECT a.id, a.title, a.location, a.start_at, a.end_at, a.capacity,
-              a.status, a.guarantee_mode, a.guarantee_amount, a.min_credit_score,
+              a.status, a.guarantee_mode, a.guarantee_amount, a.min_credit_score, a.theme,
               u.nickname AS host_name,
               (SELECT count(*) FROM registration r
                 WHERE r.activity_id=a.id
@@ -41,6 +41,7 @@ export async function GET(req: Request) {
         guaranteeMode: r.guarantee_mode,
         guaranteeAmount: r.guarantee_amount,
         minCreditScore: r.min_credit_score,
+        theme: r.theme,
         hostName: r.host_name,
         myStatus: r.my_status,
       }))
@@ -63,6 +64,7 @@ export async function POST(req: Request) {
       guaranteeMode?: 'NONE' | 'GUARANTEE';
       guaranteeAmount?: number;
       minCreditScore?: number;
+      theme?: string;
       description?: string;
     }>(req);
 
@@ -82,8 +84,8 @@ export async function POST(req: Request) {
     await query(
       `INSERT INTO activity(
          id, host_id, title, description, location, start_at, end_at,
-         capacity, status, guarantee_mode, guarantee_amount, min_credit_score
-       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'PUBLISHED',$9,$10,$11)`,
+         capacity, status, guarantee_mode, guarantee_amount, min_credit_score, theme
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'PUBLISHED',$9,$10,$11,$12)`,
       [
         id,
         hostId,
@@ -96,6 +98,7 @@ export async function POST(req: Request) {
         mode,
         amount,
         body.minCreditScore ?? 0,
+        body.theme ?? 'classic',
       ]
     );
 

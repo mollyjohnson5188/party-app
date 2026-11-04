@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { api, apiPost, fmtMoney, fmtTime, relTime, STATUS_LABEL } from '@/lib/client';
 import { Badge, CreditPill, Spinner, Toast } from '@/components/ui';
+import { getTheme } from '@/lib/themes';
 
 interface RegRow {
   id: string;
@@ -35,6 +36,7 @@ interface Detail {
   isHost: boolean;
   registrations?: RegRow[];
   registrationCount: number;
+  theme?: string | null;
 }
 
 export default function ActivityPage() {
@@ -202,14 +204,33 @@ function ActivityContent() {
         ← 返回组局列表
       </Link>
 
-      <div className="mt-4 flex items-start justify-between gap-4">
+      <div
+        className="mt-4 rounded-2xl px-5 py-5"
+        style={{ background: getTheme(d.theme).gradient }}
+      >
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-[26px] font-semibold leading-tight tracking-tight">{d.title}</h1>
-          <p className="mt-2 text-[13px] text-muted">
-            由 <span className="text-ink">{d.hostName}</span> 主理 · {relTime(d.startAt)}
+          <p
+            className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em]"
+            style={{ color: getTheme(d.theme).dark ? '#FFB86B' : getTheme(d.theme).accent }}
+          >
+            {getTheme(d.theme).emoji} {getTheme(d.theme).label}
+          </p>
+          <h1
+            className="text-[26px] font-semibold leading-tight tracking-tight"
+            style={{ color: getTheme(d.theme).dark ? '#fff' : '#1F2A1B' }}
+          >
+            {d.title}
+          </h1>
+          <p
+            className="mt-2 text-[13px]"
+            style={{ color: getTheme(d.theme).dark ? 'rgba(255,255,255,.78)' : getTheme(d.theme).accent }}
+          >
+            由 <span style={{ fontWeight: 500 }}>{d.hostName}</span> 主理 · {relTime(d.startAt)}
           </p>
         </div>
         {d.status === 'CANCELLED' && <Badge text="活动已取消" tone="red" />}
+      </div>
       </div>
 
       <div className="card mt-6 divide-y divide-stone-100">

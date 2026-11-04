@@ -453,3 +453,8 @@ CREATE INDEX idx_fa_payout ON forfeit_allocation(payout_status) WHERE payout_sta
 
 -- 审计日志给用户一个"我能看到的变更记录"视图用
 CREATE INDEX idx_audit_operator ON audit_log(operator_type, operator_id, created_at DESC);
+
+-- ============================================================
+-- 增量：活动主题模板（v1.1 视觉模板）
+-- ============================================================
+ALTER TABLE activity ADD COLUMN theme VARCHAR(16) NOT NULL DEFAULT 'classic';

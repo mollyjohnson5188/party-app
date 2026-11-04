@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api, fmtMoney, fmtTime, relTime, STATUS_LABEL } from '@/lib/client';
 import { Badge, EmptyState, Spinner } from '@/components/ui';
+import { getTheme } from '@/lib/themes';
 
 interface ActivityItem {
   id: string;
@@ -19,6 +20,7 @@ interface ActivityItem {
   minCreditScore: number;
   hostName: string;
   myStatus: string | null;
+  theme?: string | null;
 }
 
 export default function HomePage() {
@@ -95,12 +97,26 @@ export default function HomePage() {
             const remain = a.capacity - a.joined;
             const pct = Math.min(100, Math.round((a.joined / a.capacity) * 100));
             const st = a.myStatus ? STATUS_LABEL[a.myStatus] : null;
+            const th = getTheme(a.theme);
             return (
               <Link
                 key={a.id}
                 href={`/activity/${a.id}`}
-                className="card group flex flex-col p-5 transition-all hover:-translate-y-0.5 hover:border-moss-300 hover:shadow-[0_6px_24px_-12px_rgba(31,52,29,0.25)]"
+                className="card group flex flex-col overflow-hidden p-0 transition-all hover:-translate-y-0.5 hover:border-moss-300 hover:shadow-[0_6px_24px_-12px_rgba(31,52,29,0.25)]"
               >
+                <div
+                  className="flex h-[76px] items-end justify-between px-5 pb-2"
+                  style={{ background: th.gradient }}
+                >
+                  <span className="text-[22px]">{th.emoji}</span>
+                  <span
+                    className="rounded-full bg-white/45 px-2 py-0.5 text-[10.5px] font-medium backdrop-blur-sm"
+                    style={{ color: th.dark ? '#fff' : th.accent }}
+                  >
+                    {th.label}
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-[15px] font-semibold leading-snug tracking-tight group-hover:text-moss-700">
                     {a.title}
@@ -146,6 +162,7 @@ export default function HomePage() {
                       </span>
                     </span>
                   </div>
+                </div>
                 </div>
               </Link>
             );

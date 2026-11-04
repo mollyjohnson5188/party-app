@@ -54,6 +54,7 @@ export async function GET(
       guaranteeMode: act.guarantee_mode,
       guaranteeAmount: act.guarantee_amount,
       minCreditScore: act.min_credit_score,
+      theme: act.theme,
       hostId: act.host_id,
       hostName: act.host_name,
       isHost,
