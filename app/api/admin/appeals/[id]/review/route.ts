@@ -1,4 +1,4 @@
-import { ok, handleError, requireUserId, parseJson } from '@/lib/api';
+import { ok, handleError, requireAdmin, parseJson } from '@/lib/api';
 import { AppError } from '@/lib/errors';
 import { AppealService } from '@/lib/services/appeal.service';
 import { GuaranteePaymentService } from '@/lib/services/guarantee-payment.service';
@@ -13,11 +13,9 @@ export async function POST(
   ctx: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminId = requireUserId(req);
-    // 简易管理员校验：MVP 用 X-Role 头；生产接 RBAC
-    if (req.headers.get('x-role') !== 'admin') {
-      throw new AppError('FORBIDDEN', 403, '需要管理员权限');
-    }
+    // 管理员身份以数据库中的 role 为准，不再接受任何客户端自报角色
+    const auth = await requireAdmin(req);
+    const adminId = auth.user.id;
 
     const { id } = await ctx.params;
     const body = await parseJson<{ approved: boolean; note?: string }>(req);

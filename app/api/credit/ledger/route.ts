@@ -1,10 +1,10 @@
-import { ok, handleError, requireUserId } from '@/lib/api';
+import { ok, handleError, resolveUserId } from '@/lib/api';
 import { query } from '@/lib/db';
 
 /** GET /api/credit/ledger?limit=20 —— 信用流水 */
 export async function GET(req: Request) {
   try {
-    const userId = requireUserId(req);
+    const userId = await resolveUserId(req);
     const url = new URL(req.url);
     const limit = Math.min(Number(url.searchParams.get('limit') ?? 50), 200);
 

@@ -1,10 +1,10 @@
-import { ok, handleError, requireUserId } from '@/lib/api';
+import { ok, handleError, resolveUserId } from '@/lib/api';
 import { query } from '@/lib/db';
 
 /** GET /api/me/registrations —— 我的报名列表 */
 export async function GET(req: Request) {
   try {
-    const userId = requireUserId(req);
+    const userId = await resolveUserId(req);
     const rows = await query<Record<string, unknown>>(
       `SELECT r.id, r.activity_id, r.registration_status, r.checkin_status,
               r.guarantee_amount, r.checkin_at, r.created_at,

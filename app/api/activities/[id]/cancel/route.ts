@@ -1,4 +1,4 @@
-import { ok, handleError, requireUserId, parseJson } from '@/lib/api';
+import { ok, handleError, resolveUserId, parseJson } from '@/lib/api';
 import { ActivityService } from '@/lib/services/activity.service';
 
 /** POST /api/activities/{id}/cancel —— 主理人取消活动，批量退款 */
@@ -7,7 +7,7 @@ export async function POST(
   ctx: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = requireUserId(req);
+    const userId = await resolveUserId(req);
     const { id } = await ctx.params;
     const body = await parseJson<{ reason?: string }>(req).catch(
       () => ({}) as { reason?: string }

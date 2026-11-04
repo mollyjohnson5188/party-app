@@ -1,4 +1,4 @@
-import { ok, handleError, requireUserId, parseJson } from '@/lib/api';
+import { ok, handleError, resolveUserId, parseJson } from '@/lib/api';
 import { AppError } from '@/lib/errors';
 import { query } from '@/lib/db';
 
@@ -58,7 +58,7 @@ export async function GET(req: Request) {
 /** POST /api/activities —— 主理人发布活动（MVP 简化） */
 export async function POST(req: Request) {
   try {
-    const hostId = requireUserId(req);
+    const hostId = await resolveUserId(req);
     const body = await parseJson<{
       title: string;
       location?: string;

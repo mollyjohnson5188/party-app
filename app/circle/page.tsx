@@ -38,6 +38,8 @@ export default function CirclePage() {
   const [composing, setComposing] = useState(false);
   const [toast, setToast] = useState<{ msg: string; tone: 'moss' | 'red' | 'amber' } | null>(null);
 
+  const [follows, setFollows] = useState<string[]>([]);
+  const [onlyFollowed, setOnlyFollowed] = useState(false);
   const [form, setForm] = useState({ boardId: 'bd_outdoor', title: '', content: '' });
   const [posting, setPosting] = useState(false);
   const [formErr, setFormErr] = useState<string | null>(null);
@@ -56,8 +58,24 @@ export default function CirclePage() {
       .catch(() => setPosts([]));
   }, [board, sort, q]);
 
-  useEffect(() => loadBoards(), [loadBoards]);
+  useEffect(() => {
+    loadBoards();
+    api<{ boards: string[] }>('/api/circle/follow')
+      .then((r) => setFollows(r.boards ?? []))
+      .catch(() => setFollows([]));
+  }, [loadBoards]);
   useEffect(() => loadPosts(), [loadPosts]);
+
+  async function toggleFollow(boardId: string) {
+    const following = !follows.includes(boardId);
+    setFollows((f) => (following ? [...f, boardId] : f.filter((x) => x !== boardId)));
+    try {
+      await apiPost('/api/circle/follow', { boardId, follow: following });
+    } catch {
+      // 回滚乐观更新
+      setFollows((f) => (following ? f.filter((x) => x !== boardId) : [...f, boardId]));
+    }
+  }
 
   async function submit() {
     setFormErr(null);
@@ -65,12 +83,15 @@ export default function CirclePage() {
     if (!form.content.trim()) return setFormErr('请填写正文');
     setPosting(true);
     try {
-      await apiPost<{ id: string }>('/api/circle/posts', {
+      const r = await apiPost<{ id: string; pending: boolean }>('/api/circle/posts', {
         boardId: form.boardId,
         title: form.title.trim(),
         content: form.content.trim(),
       });
-      setToast({ msg: '发布成功', tone: 'moss' });
+      setToast({
+        msg: r.pending ? '已提交，管理员审核通过后展示' : '发布成功',
+        tone: r.pending ? 'amber' : 'moss',
+      });
       setComposing(false);
       setForm({ boardId: form.boardId, title: '', content: '' });
       loadPosts();
@@ -161,22 +182,50 @@ export default function CirclePage() {
             {(boards ?? []).reduce((s, b) => s + b.postCount, 0)} 帖
           </p>
         </button>
-        {(boards ?? []).map((b) => (
-          <button
-            key={b.id}
-            onClick={() => setBoard(board === b.id ? '' : b.id)}
-            title={b.description}
-            className={`rounded-xl border p-3 text-left transition-all ${
-              board === b.id
-                ? 'border-moss-500 bg-moss-50/70 ring-2 ring-moss-500/20'
-                : 'border-stone-200 bg-white hover:border-moss-300'
-            }`}
-          >
-            <span className="text-[17px]">{b.emoji}</span>
-            <p className="mt-1 truncate text-[12.5px] font-medium">{b.name}</p>
-            <p className="text-[11px] text-muted tabular">{b.postCount} 帖</p>
-          </button>
-        ))}
+        {(boards ?? [])
+          .filter((b) => !onlyFollowed || follows.includes(b.id))
+          .map((b) => {
+            const followed = follows.includes(b.id);
+            return (
+              <div
+                key={b.id}
+                className={`relative rounded-xl border transition-all ${
+                  board === b.id
+                    ? 'border-moss-500 bg-moss-50/70 ring-2 ring-moss-500/20'
+                    : 'border-stone-200 bg-white hover:border-moss-300'
+                }`}
+              >
+                <button
+                  onClick={() => setBoard(board === b.id ? '' : b.id)}
+                  title={b.description}
+                  className="w-full p-3 pb-1 text-left"
+                >
+                  <span className="text-[17px]">{b.emoji}</span>
+                  <p className="mt-1 truncate text-[12.5px] font-medium">{b.name}</p>
+                  <p className="text-[11px] text-muted tabular">{b.postCount} 帖</p>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFollow(b.id);
+                  }}
+                  className={`absolute right-1.5 top-1.5 rounded-full px-1.5 py-0.5 text-[10px] transition-colors ${
+                    followed
+                      ? 'bg-moss-500 text-white'
+                      : 'bg-stone-100 text-stone-500 hover:bg-moss-100 hover:text-moss-700'
+                  }`}
+                  title={followed ? '取消关注' : '关注版块'}
+                >
+                  {followed ? '已关注' : '+ 关注'}
+                </button>
+              </div>
+            );
+          })}
+        {onlyFollowed && follows.length === 0 && (
+          <div className="col-span-2 sm:col-span-3 lg:col-span-5 rounded-xl border border-dashed border-stone-200 p-4 text-center text-[12px] text-muted">
+            还没有关注的版块，点版块右上角「+ 关注」即可
+          </div>
+        )}
       </div>
 
       {/* 搜索 + 排序 */}
@@ -194,6 +243,16 @@ export default function CirclePage() {
             </button>
           ))}
         </div>
+        <button
+          onClick={() => setOnlyFollowed((v) => !v)}
+          className={`rounded-full border px-3 py-1.5 text-[12px] transition-colors ${
+            onlyFollowed
+              ? 'border-moss-500 bg-moss-500 text-white'
+              : 'border-stone-200 bg-white text-stone-600 hover:border-moss-300'
+          }`}
+        >
+          只看关注 {follows.length > 0 && `(${follows.length})`}
+        </button>
         <div className="flex flex-1 items-center gap-2">
           <input
             className="input !py-1.5 !text-[12.5px]"

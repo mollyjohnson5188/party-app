@@ -39,10 +39,20 @@ export async function api<T>(
 ): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set('content-type', 'application/json');
-  headers.set('x-user-id', getCurrentUserId());
-  if (init.role) headers.set('x-role', init.role);
 
-  const res = await fetch(path, { ...init, headers, cache: 'no-store' });
+  // 登录态走 httpOnly Cookie，前端不再自报 userId（旧演示头仅作本地兜底）
+  if (typeof window !== 'undefined' && !localStorage.getItem('party.currentUser')) {
+    // 未设置过演示身份时不发头，依赖真实 Session
+  } else if (typeof window !== 'undefined') {
+    headers.set('x-user-id', getCurrentUserId());
+  }
+
+  const res = await fetch(path, {
+    ...init,
+    headers,
+    cache: 'no-store',
+    credentials: 'include',
+  });
   const json = (await res.json()) as ApiEnvelope<T>;
 
   if (!json.success) {

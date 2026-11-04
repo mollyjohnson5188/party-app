@@ -1,4 +1,4 @@
-import { ok, handleError, requireUserId, parseJson } from '@/lib/api';
+import { ok, handleError, resolveUserId, parseJson } from '@/lib/api';
 import { query, queryOne } from '@/lib/db';
 import { AppError } from '@/lib/errors';
 
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
          JOIN circle_board b ON b.id=p.board_id
          JOIN app_user u ON u.id=p.author_id
          LEFT JOIN activity a ON a.id=p.activity_id
-        WHERE p.status='PUBLISHED'
+        WHERE p.status='PUBLISHED' AND p.review_status='PUBLISHED'
           AND ($2::text IS NULL OR p.board_id=$2)
           AND ($3::text IS NULL OR p.title ILIKE '%'||$3||'%' OR p.content ILIKE '%'||$3||'%')
           AND ($5::boolean IS NOT TRUE OR p.author_id=$1)
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
 /** POST /api/circle/posts —— 发帖 */
 export async function POST(req: Request) {
   try {
-    const userId = requireUserId(req);
+    const userId = await resolveUserId(req);
     const body = await parseJson<{
       boardId: string;
       title: string;
@@ -85,14 +85,28 @@ export async function POST(req: Request) {
       [userId, `用户${userId.slice(-4)}`, `9${Date.now().toString().slice(-10)}`]
     );
 
+    // 审核策略：管理员免审直接发布；普通用户进入待审队列
+    const u = await queryOne<{ role: string }>(`SELECT role FROM app_user WHERE id=$1`, [userId]);
+    const isAdmin = u?.role === 'ADMIN';
+
     const id = `post_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
     await query(
-      `INSERT INTO circle_post(id, board_id, author_id, title, content, activity_id)
-       VALUES ($1,$2,$3,$4,$5,$6)`,
-      [id, body.boardId, userId, body.title.trim(), body.content.trim(), body.activityId || null]
+      `INSERT INTO circle_post(id, board_id, author_id, title, content, activity_id,
+                               review_status, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [
+        id,
+        body.boardId,
+        userId,
+        body.title.trim(),
+        body.content.trim(),
+        body.activityId || null,
+        isAdmin ? 'PUBLISHED' : 'PENDING',
+        isAdmin ? 'PUBLISHED' : 'PUBLISHED',
+      ]
     );
 
-    return ok({ id });
+    return ok({ id, pending: !isAdmin });
   } catch (e) {
     return handleError(e);
   }

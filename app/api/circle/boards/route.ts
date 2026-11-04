@@ -7,7 +7,8 @@ export async function GET() {
     const rows = await query<Record<string, unknown>>(
       `SELECT b.id, b.name, b.slug, b.emoji, b.description,
               (SELECT count(*) FROM circle_post p
-                WHERE p.board_id=b.id AND p.status='PUBLISHED')::int AS post_count
+                WHERE p.board_id=b.id AND p.status='PUBLISHED'
+                  AND p.review_status='PUBLISHED')::int AS post_count
          FROM circle_board b
         ORDER BY b.sort_no ASC`
     );

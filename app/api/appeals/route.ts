@@ -1,4 +1,4 @@
-import { ok, handleError, requireUserId, parseJson } from '@/lib/api';
+import { ok, handleError, resolveUserId, parseJson } from '@/lib/api';
 import { AppealService } from '@/lib/services/appeal.service';
 import { GuaranteePaymentService } from '@/lib/services/guarantee-payment.service';
 import { getDefaultChannel } from '@/lib/services/pay-channel.registry';
@@ -6,7 +6,7 @@ import { getDefaultChannel } from '@/lib/services/pay-channel.registry';
 /** POST /api/appeals —— 提交爽约申诉 */
 export async function POST(req: Request) {
   try {
-    const userId = requireUserId(req);
+    const userId = await resolveUserId(req);
     const body = await parseJson<{
       registrationId: string;
       statement: string;

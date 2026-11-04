@@ -1,4 +1,4 @@
-import { ok, handleError, requireUserId, parseJson } from '@/lib/api';
+import { ok, handleError, resolveUserId, parseJson } from '@/lib/api';
 import { RegistrationService } from '@/lib/services/registration.service';
 import { getDefaultChannel } from '@/lib/services/pay-channel.registry';
 
@@ -10,7 +10,7 @@ interface Body {
 /** POST /api/registrations —— 创建报名，返回报名单与支付参数 */
 export async function POST(req: Request) {
   try {
-    const userId = requireUserId(req);
+    const userId = await resolveUserId(req);
     const body = await parseJson<Body>(req);
     if (!body.activityId) {
       throw new (await import('@/lib/errors')).AppError('VALIDATION_ERROR', 400, 'activityId 必填');

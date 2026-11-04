@@ -23,9 +23,24 @@ export async function POST(
   ctx: { params: Promise<{ job: string }> }
 ) {
   try {
+    // 安全铁律：定时任务会真实扣款、扣分、判定爽约，绝不能匿名触发。
+    //  - 未配置 CRON_SECRET 时，一律拒绝（fail-closed）
+    //  - 配置了则必须精确匹配
+    //  - 额外支持管理员 Session 手动触发（用于运营排障）
     const secret = process.env.CRON_SECRET;
-    if (secret && req.headers.get('x-cron-secret') !== secret) {
-      throw new AppError('FORBIDDEN', 403, '定时任务鉴权失败');
+    const provided = req.headers.get('x-cron-secret');
+    if (!secret) {
+      const { resolveSession } = await import('@/lib/auth/session');
+      const auth = await resolveSession(req.headers.get('cookie'));
+      if (!auth || auth.user.role !== 'ADMIN') {
+        throw new AppError('FORBIDDEN', 403, '定时任务未配置密钥，禁止匿名触发');
+      }
+    } else if (provided !== secret) {
+      const { resolveSession } = await import('@/lib/auth/session');
+      const auth = await resolveSession(req.headers.get('cookie'));
+      if (!auth || auth.user.role !== 'ADMIN') {
+        throw new AppError('FORBIDDEN', 403, '定时任务鉴权失败');
+      }
     }
 
     const { job } = await ctx.params;

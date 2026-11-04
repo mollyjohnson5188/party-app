@@ -1,10 +1,10 @@
-import { ok, handleError, requireUserId } from '@/lib/api';
+import { ok, handleError, resolveUserId } from '@/lib/api';
 import { query } from '@/lib/db';
 
 /** GET /api/notifications —— 我的站内信 */
 export async function GET(req: Request) {
   try {
-    const userId = requireUserId(req);
+    const userId = await resolveUserId(req);
     const rows = await query<{
       id: string;
       type: string;

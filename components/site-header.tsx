@@ -1,9 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
-import { DEMO_USERS, getCurrentUserId, setCurrentUserId } from '@/lib/client';
+import { usePathname, useRouter } from 'next/navigation';
+import { Suspense, useCallback, useEffect, useState } from 'react';
+
+interface SessionUser {
+  id: string;
+  nickname: string;
+  role: 'USER' | 'ADMIN';
+  avatarEmoji: string;
+  creditScore: number;
+}
 
 const NAV = [
   { href: '/', label: '发现组局' },
@@ -35,17 +42,33 @@ function HeaderShell() {
 
 function HeaderInner() {
   const pathname = usePathname();
-  const [userId, setUserId] = useState('u_zhang');
+  const router = useRouter();
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    setUserId(getCurrentUserId());
-    const handler = () => setUserId(getCurrentUserId());
-    window.addEventListener('party:user-changed', handler);
-    return () => window.removeEventListener('party:user-changed', handler);
+  const load = useCallback(() => {
+    fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' })
+      .then((r) => r.json())
+      .then((j) => setUser(j?.data?.user ?? null))
+      .catch(() => setUser(null))
+      .finally(() => setLoaded(true));
   }, []);
 
-  const user = DEMO_USERS.find((u) => u.id === userId) ?? DEMO_USERS[0];
+  useEffect(() => {
+    load();
+    const h = () => load();
+    window.addEventListener('party:auth-changed', h);
+    return () => window.removeEventListener('party:auth-changed', h);
+  }, [load]);
+
+  async function logout() {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    setUser(null);
+    setOpen(false);
+    router.push('/');
+    router.refresh();
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-[#f7f6f2]/85 backdrop-blur-md">
@@ -60,7 +83,7 @@ function HeaderInner() {
           <span className="hidden text-[11px] text-muted sm:inline">白领户外</span>
         </Link>
 
-        <nav className="flex items-center gap-1">
+        <nav className="hidden items-center gap-1 sm:flex">
           {NAV.map((n) => {
             const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href);
             return (
@@ -79,48 +102,97 @@ function HeaderInner() {
           })}
         </nav>
 
-        <div className="ml-auto relative">
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-[13px] hover:border-stone-300"
-          >
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-moss-100 text-[10px] font-medium text-moss-700">
-              {user.name.slice(0, 1)}
-            </span>
-            <span className="max-w-[80px] truncate">{user.name}</span>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M6 9l6 6 6-6" strokeLinecap="round" />
-            </svg>
-          </button>
+        <div className="relative ml-auto">
+          {!loaded && <span className="block h-8 w-24 animate-pulse rounded-lg bg-stone-200/60" />}
 
-          {open && (
+          {loaded && !user && (
+            <Link href="/auth" className="btn btn-primary !py-1.5 !text-[13px]">
+              登录 / 注册
+            </Link>
+          )}
+
+          {loaded && user && (
             <>
-              <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-              <div className="absolute right-0 z-50 mt-1.5 w-60 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
-                <div className="border-b border-stone-100 px-3 py-2 text-[11px] text-muted">
-                  演示身份切换
-                </div>
-                {DEMO_USERS.map((u) => (
-                  <button
-                    key={u.id}
-                    onClick={() => {
-                      setCurrentUserId(u.id);
-                      setOpen(false);
-                    }}
-                    className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] hover:bg-stone-50 ${
-                      u.id === userId ? 'bg-moss-50/60 font-medium text-moss-700' : ''
-                    }`}
-                  >
-                    <span className="w-14 shrink-0 truncate">{u.name}</span>
-                    <span className="flex-1 truncate text-[11px] text-muted">{u.role}</span>
-                    <span className="tabular text-[11px] text-muted">{u.credit}</span>
-                  </button>
-                ))}
-              </div>
+              <button
+                onClick={() => setOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-[13px] hover:border-stone-300"
+              >
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-moss-100 text-[11px]">
+                  {user.avatarEmoji}
+                </span>
+                <span className="max-w-[80px] truncate">{user.nickname}</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M6 9l6 6 6-6" strokeLinecap="round" />
+                </svg>
+              </button>
+
+              {open && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+                  <div className="absolute right-0 z-50 mt-1.5 w-56 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
+                    <div className="border-b border-stone-100 px-3 py-2.5">
+                      <p className="text-[13px] font-medium">{user.nickname}</p>
+                      <p className="mt-0.5 text-[11px] text-muted">
+                        信用分 <span className="tabular text-moss-700">{user.creditScore}</span>
+                        {user.role === 'ADMIN' && (
+                          <span className="ml-1.5 rounded bg-amber-100 px-1 py-0.5 text-[10px] text-amber-700">
+                            管理员
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <Link
+                      href="/me"
+                      onClick={() => setOpen(false)}
+                      className="block px-3 py-2 text-[13px] hover:bg-stone-50"
+                    >
+                      个人中心
+                    </Link>
+                    <Link
+                      href="/me?tab=credit"
+                      onClick={() => setOpen(false)}
+                      className="block px-3 py-2 text-[13px] hover:bg-stone-50"
+                    >
+                      信用中心
+                    </Link>
+                    <Link
+                      href="/host"
+                      onClick={() => setOpen(false)}
+                      className="block px-3 py-2 text-[13px] hover:bg-stone-50"
+                    >
+                      主理人台
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="block w-full border-t border-stone-100 px-3 py-2 text-left text-[13px] text-stone-500 hover:bg-stone-50 hover:text-red-600"
+                    >
+                      退出登录
+                    </button>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>
       </div>
+
+      {/* 移动端底部导航 */}
+      <nav className="flex border-t border-stone-200/70 bg-white/70 sm:hidden">
+        {NAV.map((n) => {
+          const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href);
+          return (
+            <Link
+              key={n.href}
+              href={n.href}
+              className={`flex-1 py-2 text-center text-[11.5px] ${
+                active ? 'font-medium text-moss-700' : 'text-stone-500'
+              }`}
+            >
+              {n.label}
+            </Link>
+          );
+        })}
+      </nav>
     </header>
   );
 }

@@ -1,4 +1,4 @@
-import { ok, handleError, requireUserId, parseJson } from '@/lib/api';
+import { ok, handleError, resolveUserId, parseJson } from '@/lib/api';
 import { CheckinService } from '@/lib/services/checkin.service';
 import { GuaranteePaymentService } from '@/lib/services/guarantee-payment.service';
 import { getDefaultChannel } from '@/lib/services/pay-channel.registry';
@@ -6,7 +6,7 @@ import { getDefaultChannel } from '@/lib/services/pay-channel.registry';
 /** POST /api/host/checkin/scan —— 主理人扫码核销 */
 export async function POST(req: Request) {
   try {
-    const hostId = requireUserId(req);
+    const hostId = await resolveUserId(req);
     const body = await parseJson<{ activityId: string; token: string }>(req);
 
     const payment = new GuaranteePaymentService(getDefaultChannel());

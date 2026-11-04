@@ -1,4 +1,4 @@
-import { ok, handleError, requireUserId, parseJson } from '@/lib/api';
+import { ok, handleError, resolveUserId, parseJson } from '@/lib/api';
 import { getPool } from '@/lib/db';
 import { AppError } from '@/lib/errors';
 
@@ -16,7 +16,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
            JOIN circle_board b ON b.id=p.board_id
            JOIN app_user u ON u.id=p.author_id
            LEFT JOIN activity a ON a.id=p.activity_id
-          WHERE p.id=$1`,
+          WHERE p.id=$1 AND p.review_status='PUBLISHED'`,
         [id]
       );
       if (p.rowCount === 0) throw new AppError('POST_NOT_FOUND', 404, '帖子不存在');
@@ -66,7 +66,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
 /** POST /api/circle/posts/[id] —— 回复 / 点赞（body.action = reply | like） */
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
-    const userId = requireUserId(req);
+    const userId = await resolveUserId(req);
     const { id } = await ctx.params;
     const body = await parseJson<{ action: 'reply' | 'like'; content?: string }>(req);
 
