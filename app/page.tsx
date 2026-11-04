@@ -108,7 +108,7 @@ export default function HomePage() {
                   className="flex h-[76px] items-end justify-between px-5 pb-2"
                   style={{ background: th.gradient }}
                 >
-                  <span className="text-[22px]">{th.emoji}</span>
+                  <span className="text-[22px]" style={{ filter: th.dark ? 'brightness(0) invert(1)' : 'none' }}>{th.emoji}</span>
                   <span
                     className="rounded-full bg-white/45 px-2 py-0.5 text-[10.5px] font-medium backdrop-blur-sm"
                     style={{ color: th.dark ? '#fff' : th.accent }}
