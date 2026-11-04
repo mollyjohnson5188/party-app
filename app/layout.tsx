@@ -11,6 +11,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
+        {/* 隐藏 Netlify 注入的推广角标（iframe #nl-badge-frame） */}
+        <style>{`#nl-badge-frame{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}`}</style>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){var kill=function(){var f=document.getElementById("nl-badge-frame");if(f)f.remove()};try{new MutationObserver(kill).observe(document.documentElement,{childList:true,subtree:true})}catch(e){}document.addEventListener("DOMContentLoaded",kill)})();',
+          }}
+        />
         <SiteHeader />
         <main className="relative z-10 flex-1">{children}</main>
         <footer className="relative z-10 mt-16 border-t border-stone-200/70 py-8">
