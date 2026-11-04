@@ -156,3 +156,47 @@ body::before {
 .pulse-ring {
   animation: pulseRing 2s infinite;
 }
+
+/* ============ 博客正文排版 ============ */
+.blog-body { font-size: 15.5px; line-height: 1.9; color: #2b2b28; }
+.blog-body .bd-p { margin: 1.15em 0; }
+.blog-body .bd-h2 {
+  margin: 2em 0 0.7em; font-size: 21px; font-weight: 600;
+  letter-spacing: -0.01em; line-height: 1.4; color: #1f2a1b;
+  padding-bottom: 0.4em; border-bottom: 1px solid #ecebe6;
+}
+.blog-body .bd-h3 { margin: 1.6em 0 0.55em; font-size: 17.5px; font-weight: 600; color: #1f2a1b; }
+.blog-body .bd-h4 { margin: 1.4em 0 0.5em; font-size: 15.5px; font-weight: 600; color: #1f2a1b; }
+.blog-body .bd-ul, .blog-body .bd-ol { margin: 1.1em 0; padding-left: 1.4em; }
+.blog-body .bd-ul { list-style: disc; }
+.blog-body .bd-ol { list-style: decimal; }
+.blog-body .bd-ul li, .blog-body .bd-ol li { margin: 0.45em 0; padding-left: 0.2em; }
+.blog-body .bd-ul li::marker { color: #8aa07f; }
+.blog-body .bd-quote {
+  margin: 1.4em 0; padding: 0.85em 1.1em; border-left: 3px solid #cfd9c7;
+  background: #f7f8f4; border-radius: 0 8px 8px 0; color: #55604e; font-size: 14.5px;
+}
+.blog-body .bd-pre {
+  margin: 1.3em 0; padding: 1em 1.15em; border-radius: 10px;
+  background: #1f2a1b; color: #e6e9e0; overflow-x: auto; font-size: 13px; line-height: 1.65;
+}
+.blog-body .bd-code {
+  padding: 0.15em 0.4em; border-radius: 4px; background: #f1f0eb;
+  font-size: 0.9em; color: #4a5a3f;
+}
+.blog-body .bd-h5 { margin: 1.3em 0 0.45em; font-size: 14.5px; font-weight: 600; color: #1f2a1b; }
+.blog-body .bd-hr { margin: 2em 0; border: 0; border-top: 1px solid #ecebe6; }
+.blog-body .bd-table-wrap {
+  margin: 1.5em 0; overflow-x: auto; border: 1px solid #e6e5df; border-radius: 10px;
+}
+.blog-body .bd-table { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.6; }
+.blog-body .bd-table th {
+  background: #f7f8f4; font-weight: 600; color: #1f2a1b; text-align: left;
+  padding: 0.6em 0.85em; border-bottom: 1px solid #e0dfd8; white-space: nowrap;
+}
+.blog-body .bd-table td { padding: 0.6em 0.85em; border-bottom: 1px solid #f0efe9; vertical-align: top; }
+.blog-body .bd-table tbody tr:last-child td { border-bottom: 0; }
+.blog-body .bd-table tbody tr:hover { background: #fbfbf8; }
+.blog-body .bd-link { color: #3e6b3e; text-decoration: underline; text-underline-offset: 2px; }
+.blog-body .bd-link:hover { color: #2f5230; }
+.blog-body strong { font-weight: 600; color: #1f2a1b; }
