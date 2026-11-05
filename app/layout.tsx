@@ -12,12 +12,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="flex min-h-full flex-col pb-[calc(54px+env(safe-area-inset-bottom))] sm:pb-0">
-        {/* 隐藏 Netlify 注入的推广角标（iframe #nl-badge-frame） */}
+        {/* 隐藏 Netlify 角标 与 EdgeOne 预览链接注入的「演示站点」横幅 */}
         <style>{`#nl-badge-frame{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}`}</style>
         <script
           dangerouslySetInnerHTML={{
             __html:
-              '(function(){var kill=function(){var f=document.getElementById("nl-badge-frame");if(f)f.remove()};try{new MutationObserver(kill).observe(document.documentElement,{childList:true,subtree:true})}catch(e){}document.addEventListener("DOMContentLoaded",kill)})();',
+              '(function(){var kill=function(){var f=document.getElementById("nl-badge-frame");if(f)f.remove();' +
+              'try{var bad=/for demonstration and testing purposes/i;var kids=document.body?document.body.children:[];' +
+              'for(var i=kids.length-1;i>=0;i--){var el=kids[i];if(el.tagName==="SCRIPT"||el.id==="__next")continue;' +
+              'if(bad.test(el.textContent||""))el.remove()}}catch(e){}};' +
+              'try{new MutationObserver(function(){kill()}).observe(document.documentElement,{childList:true,subtree:false})}catch(e){}' +
+              'document.addEventListener("DOMContentLoaded",kill);setTimeout(kill,500);setTimeout(kill,2000);setTimeout(kill,5000)})();',
           }}
         />
         <SiteHeader />
