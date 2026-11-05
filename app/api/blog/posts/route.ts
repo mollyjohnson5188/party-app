@@ -116,8 +116,8 @@ export async function POST(req: Request) {
           `UPDATE blog_post
               SET title=$1, summary=$2, content=$3, category_id=$4, cover_emoji=$5,
                   tags=$6, seo_title=$7, seo_description=$8, keywords=$9,
-                  is_featured=$10, status=$11,
-                  published_at = CASE WHEN $11='PUBLISHED' AND published_at IS NULL
+                  is_featured=$10, status=$11::varchar,
+                  published_at = CASE WHEN $11::varchar='PUBLISHED' AND published_at IS NULL
                                       THEN now() ELSE published_at END,
                   updated_at=now()
             WHERE id=$12`,
@@ -144,8 +144,8 @@ export async function POST(req: Request) {
           `INSERT INTO blog_post(id, slug, category_id, author_id, title, summary, content,
                                  cover_emoji, tags, seo_title, seo_description, keywords,
                                  is_featured, status, published_at)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
-                   CASE WHEN $14='PUBLISHED' THEN now() ELSE NULL END)`,
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::varchar,
+                   CASE WHEN $14::varchar='PUBLISHED' THEN now() ELSE NULL END)`,
           [
             postId,
             slug,
