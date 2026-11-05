@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import "./globals.css";
-import { SiteHeader, MobileTabBar } from "@/components/site-header";
+import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
   title: "组局 · 白领户外活动",
@@ -49,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
         </footer>
         <Suspense fallback={null}>
-          <MobileTabBar />
+          <SiteHeader />
         </Suspense>
       </body>
     </html>
