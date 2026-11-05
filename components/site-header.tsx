@@ -15,7 +15,6 @@ interface SessionUser {
 const NAV = [
   { href: '/', label: '发现组局' },
   { href: '/circle', label: '圈子' },
-  { href: '/blog', label: '户外博客' },
   { href: '/me', label: '个人中心' },
   { href: '/host', label: '主理人台' },
 ];
@@ -203,6 +202,15 @@ function HeaderInner() {
                     >
                       主理人台
                     </Link>
+                    {user.role === 'ADMIN' && (
+                      <Link
+                        href="/admin/blog"
+                        onClick={() => setOpen(false)}
+                        className="block px-3 py-2 text-[13px] text-moss-700 hover:bg-moss-50"
+                      >
+                        博客后台（管理）
+                      </Link>
+                    )}
                     <button
                       onClick={logout}
                       className="block w-full border-t border-stone-100 px-3 py-2 text-left text-[13px] text-stone-500 hover:bg-stone-50 hover:text-red-600"
@@ -226,7 +234,6 @@ function HeaderInner() {
 const TABS: { href: string; label: string; icon: keyof typeof TAB_ICONS }[] = [
   { href: '/', label: '发现', icon: 'home' },
   { href: '/circle', label: '圈子', icon: 'circle' },
-  { href: '/blog', label: '博客', icon: 'book' },
   { href: '/me', label: '我的', icon: 'user' },
 ];
 

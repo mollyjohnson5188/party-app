@@ -177,9 +177,7 @@ export default function HomePage() {
         <section className="mb-2 sm:hidden">
           <div className="flex items-baseline justify-between px-5 pb-2">
             <h2 className="text-[13px] font-semibold text-ink">即将开场</h2>
-            <Link href="/blog" className="text-[11.5px] text-moss-700">
-              攻略 →
-            </Link>
+            <span className="text-[11.5px] text-stone-400">先到先得</span>
           </div>
           <div className="scrollbar-none flex gap-2.5 overflow-x-auto px-5 pb-3">
             {filtered.slice(0, 6).map((a) => {

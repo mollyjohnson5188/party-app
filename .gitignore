@@ -50,3 +50,9 @@ next-env.d.ts
 # 截图与临时文件
 *.png
 !public/**/*.png
+
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+.tef_dist/*
+  
