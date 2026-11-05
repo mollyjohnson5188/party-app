@@ -15,7 +15,6 @@ interface SessionUser {
 const NAV = [
   { href: '/', label: '发现组局' },
   { href: '/circle', label: '圈子' },
-  { href: '/me', label: '个人中心' },
   { href: '/host', label: '主理人台' },
 ];
 
